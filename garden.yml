@@ -1,0 +1,35 @@
+
+kind: Module
+description: The hello-world-service service source image
+name: hello-world-service
+type: container
+hotReload:
+  sync:
+    - source: src
+      target: /app/src
+    - source: proto
+      target: /app/proto
+exclude: ["mongo", "target", ".trigger", ".garden"]
+services:
+  - name: hello-world-service
+    dependencies:
+      - cosm-service-mongo
+      - ambassador
+    annotations:
+      getambassador.io/config: |
+        ---
+        apiVersion: ambassador/v2
+        kind: Mapping
+        name: hello-world-service-mapping
+        grpc: True
+        prefix: /cosm.hello_world.HelloWorldService/
+        rewrite: /cosm.hello_world.HelloWorldService/
+        service: hello-world-service.cosm-services-${environment.namespace}:10000
+    env:
+      MONGO_URL: mongodb://cosm-service-mongo:27017/
+      MONGO_DB_NAME: hello-world-service
+      RUST_LOG: debug
+    ports:
+      - name: grpc
+        protocol: TCP
+        containerPort: 10000

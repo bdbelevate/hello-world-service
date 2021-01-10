@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package cosm.hello_world;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+
+message Timestamp {
+    // Represents seconds of UTC time since Unix epoch
+    // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+    // 9999-12-31T23:59:59Z inclusive.
+    int64 seconds = 1;
+
+    // Non-negative fractions of a second at nanosecond resolution. Negative
+    // second values with fractions must still have non-negative nanos values
+    // that count forward in time. Must be from 0 to 999,999,999
+    // inclusive.
+    int32 nanos = 2;
+}
+
+// service definitions
+service HelloWorldService {
+    rpc CreateHelloWorld(HelloWorld) returns (HelloWorld);
+    rpc GetHelloWorld(GetHelloWorldRequest) returns (HelloWorld);
+    rpc ListHelloWorlds(ListHelloWorldsRequest) returns (stream HelloWorld);
+    rpc UpdateHelloWorld(UpdateHelloWorldRequest) returns (HelloWorld);
+    rpc DeleteHelloWorld(DeleteHelloWorldRequest) returns (google.protobuf.Empty);
+}
+
+// organization request messages
+message GetHelloWorldRequest {
+    string id = 1;
+}
+
+enum BoolSearch {
+    ANY = 0;
+    TRUE = 1;
+    FALSE = 2;
+}
+
+message ListHelloWorldsRequest {
+    enum OrderBy {
+        DEFAULT = 0;
+        NAME = 1;
+        CREATED_AT = 2;
+    }
+    OrderBy order_by = 1;
+    int32 start = 2;
+    int32 limit = 3;
+    repeated string ignored_ids = 4;
+
+    string search_term = 5;
+
+    repeated HelloWorldType hello_world_types = 6;
+    repeated string project_ids = 7;
+
+    BoolSearch is_awesome = 8;
+}
+
+message UpdateHelloWorldRequest {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+
+    HelloWorldType hello_world_type = 4;
+
+    repeated string project_ids = 5;
+    string subtitle = 6;
+    bool is_awesome = 7;
+
+    google.protobuf.FieldMask mask = 8;
+}
+
+message DeleteHelloWorldRequest {
+    string id = 1;
+}
+
+enum HelloWorldType {
+    NONE = 0;
+    TYPE_1 = 1;
+    TYPE_2 = 2;
+    TYPE_3 = 3;
+}
+
+// response messages
+message HelloWorld  {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+
+    HelloWorldType hello_world_type = 4;
+    repeated string project_ids = 5;
+    
+    string subtitle = 6;
+    bool is_awesome = 7;
+    Timestamp created_at = 8;
+}
